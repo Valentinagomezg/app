@@ -1,0 +1,258 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #111;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.phone-container {
+  width: 950px;
+  background-color: #000;
+  border: 2px solid #333;
+  border-radius: 20px;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+h1 {
+  color: #ffcc00;
+}
+
+.container {
+  text-align: center;
+}
+
+/* ===== ZONAS ===== */
+.zona {
+  margin-bottom: 50px;
+}
+
+.zona h3 {
+  color: #ffcc00;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+/* ===== PARQUEADERO ===== */
+.parking-lot {
+  background-color: #1a1a1a;
+  border-radius: 15px;
+  padding: 15px;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-auto-rows: 60px;
+  gap: 8px;
+  border: 2px solid #444;
+  position: relative;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+}
+
+.parking-spot {
+  background-color: #1e1e1e;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  border: 2px solid #777;
+  cursor: pointer;
+  transition: all 0.25s;
+  font-weight: bold;
+  font-size: 12px;
+  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.7);
+}
+
+.parking-spot:hover {
+  background-color: #333;
+}
+
+.parking-spot.ocupado {
+  background-color: red !important;
+  border-color: red;
+  cursor: not-allowed;
+}
+
+.parking-spot.seleccionado {
+  background-color: orange !important;
+  border-color: yellow;
+}
+
+/* ===== CALLES INTERNAS ===== */
+.internal-road {
+  grid-column: 1 / -1;
+  height: 45px;
+  background: linear-gradient(180deg, #2a2a2a 0%, #111 100%);
+  position: relative;
+  border-top: 2px solid #555;
+  border-bottom: 2px solid #555;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.internal-road::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-image: repeating-linear-gradient(
+    to right,
+    yellow 0,
+    yellow 30px,
+    transparent 30px,
+    transparent 60px
+  );
+  transform: translateY(-50%);
+  box-shadow: 0 0 8px yellow;
+}
+
+/* ===== CALLE PRINCIPAL ===== */
+.calle {
+  width: 100%;
+  height: 100px;
+  background: linear-gradient(to right, #222 0%, #000 100%);
+  position: relative;
+  border-radius: 50px;
+  margin: 40px auto;
+  box-shadow: inset 0 0 40px rgba(255, 255, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.calle::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-image: repeating-linear-gradient(
+    to right,
+    yellow 0,
+    yellow 40px,
+    transparent 40px,
+    transparent 80px
+  );
+  transform: translateY(-50%);
+  box-shadow: 0 0 10px yellow;
+}
+
+.calle::after {
+  content: "⬆   ⬇";
+  position: absolute;
+  font-size: 18px;
+  top: 32%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #00bfff;
+  text-shadow: 0 0 5px #00bfff;
+}
+
+/* ===== CONEXIONES ===== */
+.conexion {
+  position: relative;
+  width: 90%;
+  height: 60px;
+  margin: 0 auto 10px auto;
+}
+
+.conexion::before,
+.conexion::after {
+  content: "";
+  position: absolute;
+  width: 45%;
+  height: 50px;
+  border: 3px dashed yellow;
+  border-radius: 50px;
+  box-shadow: 0 0 8px yellow;
+}
+
+.conexion::before {
+  left: 0;
+  border-right: none;
+  border-bottom: none;
+  transform: rotate(20deg);
+  top: 0;
+}
+
+.conexion::after {
+  right: 0;
+  border-left: none;
+  border-bottom: none;
+  transform: rotate(-20deg);
+  top: 0;
+}
+
+/* ===== BOTONES ===== */
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.button-container a {
+  padding: 10px 20px;
+  background-color: #0066cc;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  width: 200px;
+  text-align: center;
+  transition: background-color 0.3s;
+}
+
+.button-container a:hover {
+  background-color: #004999;
+}
+
+.logout-btn {
+  background-color: crimson;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: darkred;
+}
+
+.tarifas-btn {
+  background-color: darkgreen;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.tarifas-btn:hover {
+  background-color: green;
+}
+
+#error {
+  color: red;
+  text-align: center;
+  margin-top: 10px;
+  font-weight: bold;
+}

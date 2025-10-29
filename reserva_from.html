@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Reservar Cupo</title>
+<style>
+  body { font-family: Arial; background: #000; color: #fff; padding: 20px; }
+  label, input, select, button { display: block; margin: 10px 0; width: 100%; max-width: 300px; }
+  input, select { padding: 8px; border-radius: 5px; border: none; }
+  button { background: #fff; color: #000; font-weight: bold; cursor: pointer; }
+  button:hover { background: #ccc; }
+</style>
+</head>
+<body>
+
+<h1>Reservar Cupo</h1>
+
+<form method="POST" action="reserva.php">
+
+  <label for="fecha_reserva">Fecha de Reserva:</label>
+  <input type="date" id="fecha_reserva" name="fecha_reserva" required
+         min="<?= date('Y-m-d') ?>" />
+
+  <label for="numero_cupo">Número de Cupo:</label>
+  <input type="number" id="numero_cupo" name="numero_cupo" min="1" required />
+
+  <label for="hora_inicio">Hora de Inicio:</label>
+  <input type="time" id="hora_inicio" name="hora_inicio" required />
+
+  <label for="hora_fin">Hora de Fin:</label>
+  <input type="time" id="hora_fin" name="hora_fin" required />
+
+  <label for="monto">Monto:</label>
+  <input type="number" id="monto" name="monto" step="0.01" min="0" required />
+
+  <label for="metodo_pago">Método de Pago:</label>
+  <select id="metodo_pago" name="metodo_pago" required>
+    <option value="">Seleccione método</option>
+    <option value="efectivo">Efectivo</option>
+    <option value="tarjeta">Tarjeta</option>
+    <option value="transferencia">Transferencia</option>
+  </select>
+
+  <label for="tipo_automovil">Tipo de Automóvil:</label>
+  <select id="tipo_automovil" name="tipo_automovil" required>
+    <option value="">Seleccione tipo</option>
+    <option value="sedan">Sedán</option>
+    <option value="camioneta">Camioneta</option>
+    <option value="moto">Moto</option>
+  </select>
+
+  <button type="submit">Reservar</button>
+
+</form>
+
+</body>
+</html>

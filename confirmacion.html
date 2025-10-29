@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro de Cupo</title>
+  <link rel="icon" href="imagenes/logo-primary.png" type="image/png">
+  <link rel="stylesheet" href="css/confirmacion.css">
+</head>
+<body>
+  <div class="phone-container">
+    <div class="container">
+      <h2>Registro de Cupo</h2>
+
+      <div id="calendario"></div>
+
+      <!-- Campo oculto para fecha y mensaje -->
+      <input type="hidden" id="fechaSeleccionada" name="fecha_seleccionada">
+      <div id="mensajeFecha" class="mensaje-error">Por favor selecciona una fecha válida.</div>
+
+      <form action="reservar.php" method="POST" onsubmit="return validarFormulario()">
+        <div class="input-group">
+          <label for="horaInicio">Hora de inicio</label>
+          <input type="time" id="horaInicio" name="hora_inicio" required>
+        </div>
+
+        <div class="input-group">
+          <label for="horaFin">Hora de vencimiento</label>
+          <input type="time" id="horaFin" name="hora_fin" required>
+        </div>
+
+        <div class="input-group">
+          <label for="tipo_automovil">Tipo de automóvil:</label>
+          <select id="tipo_automovil" name="tipo_automovil" required>
+            <option value="">Seleccione una opción</option>
+            <option value="carro">Carro</option>
+            <option value="moto">Moto</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label for="montoPago">Monto a pagar</label>
+          <input type="number" id="montoPago" name="monto" placeholder="$" readonly>
+        </div>
+
+        <div class="input-group">
+          <label for="metodo-pago">Método de pago:</label>
+          <select id="metodo-pago" name="metodo_pago" required>
+            <option value="nequi">Nequi</option>
+            <option value="tarjeta">Tarjeta</option>
+          </select>
+        </div>
+
+        <input type="hidden" name="numero_cupo" id="numero_cupo">
+
+        <div class="button-container">
+          <button type="submit" id="confirmarBtn" name="confirmar">Confirmar</button>
+          <button type="button" class="cancel" id="cancelarBtn">Cancelar</button>
+          <button type="button" id="perfil">Perfil</button>
+          <button type="button" id="cerrarSesion">Cerrar Sesión</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Cargar cupo temporal
+    const cupo = localStorage.getItem("cupoTemporal");
+    document.getElementById("numero_cupo").value = cupo;
+
+    document.getElementById('cancelarBtn').addEventListener('click', () => {
+      localStorage.removeItem("cupoTemporal");
+      window.location.href = 'cupo.php'; 
+    });
+
+    document.getElementById('perfil').addEventListener('click', () => {
+      window.location.href = 'editar_perfil.php';
+    });
+
+    document.getElementById('cerrarSesion').addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    });
+
+    document.getElementById("horaFin").addEventListener("change", validarFormulario);
+    document.getElementById("horaInicio").addEventListener("change", validarFormulario);
+    document.getElementById("tipo_automovil").addEventListener("change", validarFormulario);
+
+    function validarFormulario() {
+      const horaInicio = document.getElementById("horaInicio").value;
+      const horaFin = document.getElementById("horaFin").value;
+      const tipo = document.getElementById("tipo_automovil").value;
+      const fecha = document.getElementById("fechaSeleccionada").value;
+      const mensajeFecha = document.getElementById("mensajeFecha");
+
+      if (!fecha) {
+        mensajeFecha.style.display = "block";
+        return false;
+      }
+
+      mensajeFecha.style.display = "none";
+
+      if (!tipo) {
+        alert("Por favor seleccione el tipo de automóvil.");
+        return false;
+      }
+
+      const [h1, m1] = horaInicio.split(":");
+      const [h2, m2] = horaFin.split(":");
+
+      const inicio = new Date();
+      const fin = new Date();
+
+      inicio.setHours(h1, m1);
+      fin.setHours(h2, m2);
+
+      const diferencia = (fin - inicio) / 3600000;
+
+      if (diferencia <= 0) {
+        alert("La hora de vencimiento debe ser mayor que la de inicio.");
+        return false;
+      }
+
+      let tarifa = tipo === "moto" ? 3000 : 8000;
+      document.getElementById("montoPago").value = diferencia * tarifa;
+
+      return true;
+    }
+
+    // Calendario
+    const calendario = document.getElementById('calendario');
+    const fechaInput = document.getElementById('fechaSeleccionada');
+    let fechaActual = new Date();
+
+    function mostrarCalendario(fecha) {
+      const año = fecha.getFullYear();
+      const mes = fecha.getMonth();
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+
+      const primerDia = new Date(año, mes, 1);
+      const ultimoDia = new Date(año, mes + 1, 0);
+      const primerDiaSemana = primerDia.getDay();
+      const diasMes = ultimoDia.getDate();
+      const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+      let tabla = '<table><thead><tr>';
+      tabla += '<th class="nav-btn" onclick="cambiarMes(-1)">&lt;</th>';
+      tabla += `<th colspan="5">${fecha.toLocaleString('es-ES', { month: 'long', year: 'numeric' })}</th>`;
+      tabla += '<th class="nav-btn" onclick="cambiarMes(1)">&gt;</th></tr><tr>';
+
+      for (let dia of diasSemana) {
+        tabla += `<th>${dia}</th>`;
+      }
+
+      tabla += '</tr></thead><tbody><tr>';
+
+      let diaSemanaContador = primerDiaSemana === 0 ? 7 : primerDiaSemana;
+
+      for (let i = 1; i < diaSemanaContador; i++) {
+        tabla += '<td class="no-selectable"></td>';
+      }
+
+      for (let dia = 1; dia <= diasMes; dia++) {
+        if (diaSemanaContador > 7) {
+          tabla += '</tr><tr>';
+          diaSemanaContador = 1;
+        }
+
+        const diaCompleto = new Date(año, mes, dia);
+        const esPasado = diaCompleto < hoy;
+
+        if (esPasado) {
+          tabla += `<td class="no-selectable">${dia}</td>`;
+        } else {
+          tabla += `<td onclick="seleccionarFecha(${año}, ${mes}, ${dia})">${dia}</td>`;
+        }
+
+        diaSemanaContador++;
+      }
+
+      while (diaSemanaContador <= 7) {
+        tabla += '<td class="no-selectable"></td>';
+        diaSemanaContador++;
+      }
+
+      tabla += '</tr></tbody></table>';
+      calendario.innerHTML = tabla;
+    }
+
+    function seleccionarFecha(año, mes, dia) {
+      const fechaSeleccionada = new Date(año, mes, dia);
+      const fechaStr = fechaSeleccionada.toISOString().split('T')[0];
+      fechaInput.value = fechaStr;
+      document.getElementById("mensajeFecha").style.display = "none";
+
+      const celdas = calendario.querySelectorAll("td");
+      celdas.forEach(td => td.classList.remove("seleccionado"));
+      event.target.classList.add("seleccionado");
+    }
+
+    function cambiarMes(cantidad) {
+      fechaActual.setMonth(fechaActual.getMonth() + cantidad);
+      mostrarCalendario(fechaActual);
+    }
+
+    mostrarCalendario(fechaActual);
+  </script>
+</body>
+</html>

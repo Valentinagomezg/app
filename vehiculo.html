@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="imagenes/logo-primary.png" type="image/png">
+  <title>Registrar Vehículo</title>
+  <link rel="stylesheet" href="css/vehiculo.css">
+</head>
+<body>
+  <div class="phone-container">
+    <div class="container">
+      <h2>Registro de Vehículo</h2>
+      <form id="formVehiculo">
+        <div class="input-group">
+          <label for="placa">Placa:</label>
+          <input type="text" id="placa" name="placa" maxlength="10" required>
+        </div>
+
+        <div class="input-group">
+          <label for="marca">Marca:</label>
+          <input type="text" id="marca" name="marca" maxlength="30" required>
+        </div>
+
+        <div class="input-group">
+          <label for="color">Color:</label>
+          <input type="text" id="color" name="color" maxlength="30" required>
+        </div>
+
+        <div class="button-container">
+          <button type="submit" id="btnRegistrar">Registrar Vehículo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("formVehiculo");
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+
+        fetch("registro_vehiculo.php", {
+          method: "POST",
+          body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+          if (data.includes("exitosamente")) {
+            alert("¡Vehículo registrado exitosamente!");
+            window.location.href = "cupo.php";
+          } else {
+            alert("Error al registrar: " + data);
+          }
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          alert("Error de red al registrar el vehículo.");
+        });
+      });
+    });
+  </script>
+</body>
+</html>
+

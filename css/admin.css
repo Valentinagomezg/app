@@ -1,0 +1,269 @@
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #111;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.phone-container {
+  width: 760px;
+  height: 1000px;
+  background-color: #000;
+  border: 1px solid #333;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.container {
+  text-align: center;
+}
+
+h2 {
+  margin-bottom: 10px;
+}
+
+.parking-lot {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+  justify-items: center;
+}
+
+.parking-spot {
+  background-color: #222;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 2px solid white;
+  transition: 0.3s;
+}
+
+.parking-spot:hover {
+  background-color: #444;
+}
+
+
+
+.button-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.button-container a {
+  background-color: green;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.button-container a:hover {
+  background-color: darkgreen;
+}
+.parking-spot.ocupado {
+  background-color: red !important;
+  border-color: red;
+  cursor: not-allowed;
+}
+
+.parking-spot.seleccionado {
+  background-color: orange !important;
+  border-color: yellow;
+}
+
+#error {
+  color: red;
+  text-align: center;
+  margin-top: 10px;
+  font-weight: bold;
+}
+.logout-btn {
+  background-color: crimson;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.tarifas-btn {
+  background-color: darkgreen;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  text-decoration: none;
+  margin-left: 80px; /* Esto lo empuja un poco a la derecha */
+}
+
+
+.logout-btn:hover {
+  background-color: darkred;
+}
+.parking-image {
+  grid-column: 1 / -1;     /* Ocupa toda la fila (20 cupos) */
+  width: 100%;
+  height: 80px;            /* Altura proporcional a los cupos */
+  margin: 6px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.parking-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;         /* ESTIRA la imagen sin dejar bordes */
+  border-radius: 8px;
+  display: block;
+}
+
+.parking-spot.libre {
+  background-color: green;
+  border-color: green;
+}
+.parking-spot.libre:hover {
+  background-color: darkgreen;
+}
+button {
+  background-color: green;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: green;
+}
+.eliminar-usuario-section {
+  margin-top: 30px;
+  padding: 15px;
+  background-color: #1a1a1a;
+  border-radius: 10px;
+  border: 1px solid #333;
+}
+
+.eliminar-usuario-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.eliminar-usuario-form label {
+  font-weight: bold;
+  text-align: left;
+}
+
+.eliminar-usuario-form select {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #555;
+  background-color: #222;
+  color: white;
+  font-size: 14px;
+}
+
+.eliminar-usuario-form select:focus {
+  border-color: orange;
+  outline: none;
+}
+
+.confirmar-eliminacion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+/* Sección pagos */
+#pagos-section {
+  margin-top: 30px;
+  padding: 15px;
+  background-color: #1a1a1a;
+  border-radius: 10px;
+  border: 1px solid #333;
+  color: white;
+  font-weight: bold;
+}
+
+#pagos-section h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #f39c12;
+}
+
+#pagos-section ul {
+  list-style: none;
+  padding-left: 0;
+  font-size: 16px;
+  color: white;
+}
+
+#pagos-section ul li {
+  margin-bottom: 6px;
+}
+
+/* Modal */
+#modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #222;
+  border: 2px solid #f39c12;
+  padding: 20px;
+  max-width: 320px;
+  width: 90%;
+  border-radius: 10px;
+  box-shadow: 0 0 15px #f39c12;
+  color: white;
+  font-weight: bold;
+}
+
+#modal-content p {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+#modal button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #f39c12;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #222;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+#modal button:hover {
+  background-color: #d35400;
+}

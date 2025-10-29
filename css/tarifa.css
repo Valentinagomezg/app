@@ -1,0 +1,89 @@
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #111;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.phone-container {
+  width: 360px;
+  height: 640px;
+  background-color: #000;
+  border: 1px solid #333;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+h1 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  text-align: center;
+}
+
+.tarifa {
+  background-color: #222;
+  width: 100%;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: 2px solid #555;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.tarifa img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.tarifa span {
+  font-size: 18px;
+}
+
+.reglas {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.reglas h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.reglas ul {
+  list-style: disc;
+  padding-left: 20px;
+  font-size: 16px;
+}
+
+.reglas ul li {
+  margin-bottom: 8px;
+}
+
+.volver-btn {
+  margin-top: 20px;
+  background-color: crimson;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.volver-btn:hover {
+  background-color: darkred;
+}
