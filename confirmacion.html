@@ -7,6 +7,7 @@
   <link rel="icon" href="imagenes/logo-primary.png" type="image/png">
   <link rel="stylesheet" href="css/confirmacion.css">
 </head>
+
 <body>
   <div class="phone-container">
     <div class="container">
@@ -14,9 +15,9 @@
 
       <div id="calendario"></div>
 
-      <!-- Campo oculto para fecha y mensaje -->
+      <!-- Campo oculto para la fecha seleccionada -->
       <input type="hidden" id="fechaSeleccionada" name="fecha_seleccionada">
-      <div id="mensajeFecha" class="mensaje-error">Por favor selecciona una fecha válida.</div>
+      <div id="mensajeFecha" class="mensaje-error" style="display:none;">Por favor selecciona una fecha válida.</div>
 
       <form action="reservar.php" method="POST" onsubmit="return validarFormulario()">
         <div class="input-group">
@@ -46,8 +47,10 @@
         <div class="input-group">
           <label for="metodo-pago">Método de pago:</label>
           <select id="metodo-pago" name="metodo_pago" required>
+            <option value="">Seleccione una opción</option>
             <option value="nequi">Nequi</option>
             <option value="tarjeta">Tarjeta</option>
+            <option value="efectivo">Efectivo</option>
           </select>
         </div>
 
@@ -64,10 +67,16 @@
   </div>
 
   <script>
-    // Cargar cupo temporal
+    // === CARGAR CUPO DESDE LOCALSTORAGE ===
     const cupo = localStorage.getItem("cupoTemporal");
-    document.getElementById("numero_cupo").value = cupo;
+    if (cupo) {
+      document.getElementById("numero_cupo").value = cupo;
+    } else {
+      alert("Debe seleccionar un cupo antes de continuar.");
+      window.location.href = "cupo.php";
+    }
 
+    // === BOTONES ===
     document.getElementById('cancelarBtn').addEventListener('click', () => {
       localStorage.removeItem("cupoTemporal");
       window.location.href = 'cupo.php'; 
@@ -82,10 +91,14 @@
       window.location.href = 'index.html';
     });
 
+    // === VALIDACIONES AUTOMÁTICAS ===
     document.getElementById("horaFin").addEventListener("change", validarFormulario);
     document.getElementById("horaInicio").addEventListener("change", validarFormulario);
     document.getElementById("tipo_automovil").addEventListener("change", validarFormulario);
 
+    function pad(n) { return n < 10 ? '0' + n : n; }
+
+    // === FUNCIÓN DE VALIDACIÓN ===
     function validarFormulario() {
       const horaInicio = document.getElementById("horaInicio").value;
       const horaFin = document.getElementById("horaFin").value;
@@ -96,38 +109,43 @@
       if (!fecha) {
         mensajeFecha.style.display = "block";
         return false;
+      } else {
+        mensajeFecha.style.display = "none";
       }
-
-      mensajeFecha.style.display = "none";
 
       if (!tipo) {
         alert("Por favor seleccione el tipo de automóvil.");
         return false;
       }
 
-      const [h1, m1] = horaInicio.split(":");
-      const [h2, m2] = horaFin.split(":");
+      if (!horaInicio || !horaFin) {
+        alert("Por favor ingrese hora de inicio y de vencimiento.");
+        return false;
+      }
 
-      const inicio = new Date();
-      const fin = new Date();
+      const [h1, m1] = horaInicio.split(":").map(Number);
+      const [h2, m2] = horaFin.split(":").map(Number);
+      const [y, mo, d] = fecha.split("-").map(Number);
 
-      inicio.setHours(h1, m1);
-      fin.setHours(h2, m2);
+      // Fechas sin UTC (zona local)
+      const inicio = new Date(y, mo - 1, d, h1, m1, 0);
+      let fin = new Date(y, mo - 1, d, h2, m2, 0);
 
-      const diferencia = (fin - inicio) / 3600000;
+      if (fin <= inicio) fin.setDate(fin.getDate() + 1);
 
-      if (diferencia <= 0) {
+      const diferenciaHoras = (fin - inicio) / 3600000;
+      if (diferenciaHoras <= 0) {
         alert("La hora de vencimiento debe ser mayor que la de inicio.");
         return false;
       }
 
-      let tarifa = tipo === "moto" ? 3000 : 8000;
-      document.getElementById("montoPago").value = diferencia * tarifa;
+      const tarifa = tipo === "moto" ? 3000 : 8000;
+      document.getElementById("montoPago").value = Math.round(diferenciaHoras * tarifa);
 
       return true;
     }
 
-    // Calendario
+    // === CALENDARIO ===
     const calendario = document.getElementById('calendario');
     const fechaInput = document.getElementById('fechaSeleccionada');
     let fechaActual = new Date();
@@ -135,68 +153,76 @@
     function mostrarCalendario(fecha) {
       const año = fecha.getFullYear();
       const mes = fecha.getMonth();
+      const diasSemana = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
       const hoy = new Date();
-      hoy.setHours(0, 0, 0, 0);
+      hoy.setHours(0,0,0,0);
 
       const primerDia = new Date(año, mes, 1);
       const ultimoDia = new Date(año, mes + 1, 0);
-      const primerDiaSemana = primerDia.getDay();
       const diasMes = ultimoDia.getDate();
-      const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      const primerDiaSemanaIndice = (primerDia.getDay() + 6) % 7; // lunes=0
 
       let tabla = '<table><thead><tr>';
       tabla += '<th class="nav-btn" onclick="cambiarMes(-1)">&lt;</th>';
       tabla += `<th colspan="5">${fecha.toLocaleString('es-ES', { month: 'long', year: 'numeric' })}</th>`;
       tabla += '<th class="nav-btn" onclick="cambiarMes(1)">&gt;</th></tr><tr>';
 
-      for (let dia of diasSemana) {
-        tabla += `<th>${dia}</th>`;
-      }
-
+      diasSemana.forEach(dia => tabla += `<th>${dia}</th>`);
       tabla += '</tr></thead><tbody><tr>';
 
-      let diaSemanaContador = primerDiaSemana === 0 ? 7 : primerDiaSemana;
+      for (let i = 0; i < primerDiaSemanaIndice; i++) tabla += '<td class="no-selectable"></td>';
 
-      for (let i = 1; i < diaSemanaContador; i++) {
-        tabla += '<td class="no-selectable"></td>';
-      }
-
+      let contador = primerDiaSemanaIndice;
       for (let dia = 1; dia <= diasMes; dia++) {
-        if (diaSemanaContador > 7) {
+        if (contador === 7) {
           tabla += '</tr><tr>';
-          diaSemanaContador = 1;
+          contador = 0;
         }
 
         const diaCompleto = new Date(año, mes, dia);
+        diaCompleto.setHours(0,0,0,0);
         const esPasado = diaCompleto < hoy;
 
         if (esPasado) {
           tabla += `<td class="no-selectable">${dia}</td>`;
         } else {
-          tabla += `<td onclick="seleccionarFecha(${año}, ${mes}, ${dia})">${dia}</td>`;
+          tabla += `<td onclick="seleccionarFecha(${año}, ${mes}, ${dia}, this)">${dia}</td>`;
         }
 
-        diaSemanaContador++;
+        contador++;
       }
 
-      while (diaSemanaContador <= 7) {
+      while (contador > 0 && contador < 7) {
         tabla += '<td class="no-selectable"></td>';
-        diaSemanaContador++;
+        contador++;
       }
 
       tabla += '</tr></tbody></table>';
       calendario.innerHTML = tabla;
+
+      // Marcar fecha seleccionada
+      const valor = fechaInput.value;
+      if (valor) {
+        const [ySel, mSel, dSel] = valor.split('-').map(Number);
+        const celdas = calendario.querySelectorAll("td");
+        celdas.forEach(td => {
+          if (!td.classList.contains('no-selectable') && Number(td.textContent.trim()) === dSel && mes + 1 === mSel && año === ySel) {
+            td.classList.add('seleccionado');
+          }
+        });
+      }
     }
 
-    function seleccionarFecha(año, mes, dia) {
-      const fechaSeleccionada = new Date(año, mes, dia);
-      const fechaStr = fechaSeleccionada.toISOString().split('T')[0];
+    function seleccionarFecha(año, mes, dia, celda) {
+      // Guardar la fecha sin usar UTC
+      const fechaStr = `${año}-${pad(mes + 1)}-${pad(dia)}`;
       fechaInput.value = fechaStr;
-      document.getElementById("mensajeFecha").style.display = "none";
 
+      document.getElementById("mensajeFecha").style.display = "none";
       const celdas = calendario.querySelectorAll("td");
       celdas.forEach(td => td.classList.remove("seleccionado"));
-      event.target.classList.add("seleccionado");
+      if (celda) celda.classList.add("seleccionado");
     }
 
     function cambiarMes(cantidad) {

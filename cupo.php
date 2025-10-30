@@ -1,5 +1,15 @@
 <?php
-// Obtener cupos ocupados desde la base de datos
+session_start();
+
+// Verificar si el usuario ha iniciado sesión
+if (!isset($_SESSION['id_usuario'])) {
+  header("Location: index.html");
+  exit();
+}
+
+$id_usuario = $_SESSION['id_usuario'];
+
+// Conexión a la base de datos
 $host = "localhost";
 $user = "root";
 $password = "";
@@ -8,16 +18,28 @@ $database = "dbparking";
 $conn = new mysqli($host, $user, $password, $database);
 $ocupados = [];
 
-if (!$conn->connect_error) {
-  $sql = "SELECT numero_cupo FROM reservas";
-  $result = $conn->query($sql);
-  if ($result) {
-    while ($row = $result->fetch_assoc()) {
-      $ocupados[] = (int)$row['numero_cupo'];
-    }
-  }
-  $conn->close();
+if ($conn->connect_error) {
+  die("Error de conexión: " . $conn->connect_error);
 }
+
+// 🔄 1. Actualizar automáticamente reservas vencidas
+$conn->query("UPDATE reservas SET estado='vencido' WHERE fecha_vencimiento < NOW() AND estado='activo'");
+
+// 🧠 2. Verificar si el usuario ya tiene una reserva activa
+$sqlActiva = "SELECT * FROM reservas WHERE id_usuario='$id_usuario' AND estado='activo' AND fecha_vencimiento > NOW()";
+$resActiva = $conn->query($sqlActiva);
+$tieneReserva = $resActiva->num_rows > 0;
+
+// 🚗 3. Obtener cupos ocupados actualmente (activos y vigentes)
+$sql = "SELECT numero_cupo FROM reservas WHERE estado='activo' AND fecha_vencimiento > NOW()";
+$result = $conn->query($sql);
+
+if ($result) {
+  while ($row = $result->fetch_assoc()) {
+    $ocupados[] = (int)$row['numero_cupo'];
+  }
+}
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -39,6 +61,12 @@ if (!$conn->connect_error) {
     </div>
 
     <div class="container">
+      <?php if ($tieneReserva): ?>
+        <div style="background:#fee; padding:10px; border:1px solid red; color:red; font-weight:bold; text-align:center; border-radius:10px; margin-bottom:10px;">
+          Ya tienes una reserva activa. Debes esperar a que finalice para agendar otra.
+        </div>
+      <?php endif; ?>
+
       <div class="zonas">
         <!-- 🅿 Zona A -->
         <div class="zona">
@@ -46,20 +74,18 @@ if (!$conn->connect_error) {
           <div class="parking-lot" id="zonaA">
             <?php
             for ($i = 1; $i <= 250; $i++) {
-              echo '<div class="parking-spot" data-num="' . $i . '">' . $i . '</div>';
+              $ocupado = in_array($i, $ocupados);
+              $clase = $ocupado ? "parking-spot ocupado" : "parking-spot";
+              echo '<div class="' . $clase . '" data-num="' . $i . '">' . $i . '</div>';
               if ($i % 50 == 0) echo '<div class="internal-road"></div>';
             }
             ?>
           </div>
         </div>
 
-        <!-- 🔄 Conexión a la carretera -->
+        <!-- 🔄 Conexión -->
         <div class="conexion"></div>
-
-        <!-- 🛣 Carretera principal -->
         <div class="calle"></div>
-
-        <!-- 🔄 Conexión a Zona B -->
         <div class="conexion"></div>
 
         <!-- 🅿 Zona B -->
@@ -68,7 +94,9 @@ if (!$conn->connect_error) {
           <div class="parking-lot" id="zonaB">
             <?php
             for ($i = 501; $i <= 1000; $i++) {
-              echo '<div class="parking-spot" data-num="' . $i . '">' . $i . '</div>';
+              $ocupado = in_array($i, $ocupados);
+              $clase = $ocupado ? "parking-spot ocupado" : "parking-spot";
+              echo '<div class="' . $clase . '" data-num="' . $i . '">' . $i . '</div>';
               if ($i % 50 == 0) echo '<div class="internal-road"></div>';
             }
             ?>
@@ -77,7 +105,12 @@ if (!$conn->connect_error) {
       </div>
 
       <div class="button-container">
-        <a href="#" id="agendar-btn">Agendar</a>
+        <?php if (!$tieneReserva): ?>
+          <a href="#" id="agendar-btn">Agendar</a>
+        <?php else: ?>
+          <a href="#" id="agendar-btn" style="background:gray; pointer-events:none;">Agendar</a>
+        <?php endif; ?>
+
         <a href="editar_perfil.php" class="action-button">Editar Perfil</a>
       </div>
 
@@ -87,6 +120,7 @@ if (!$conn->connect_error) {
 
   <script>
     const ocupados = <?php echo json_encode($ocupados); ?>;
+    const tieneReserva = <?php echo $tieneReserva ? 'true' : 'false'; ?>;
     let cupoSeleccionado = null;
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -97,7 +131,7 @@ if (!$conn->connect_error) {
         const numero = parseInt(spot.dataset.num);
         if (ocupados.includes(numero)) {
           spot.classList.add("ocupado");
-        } else {
+        } else if (!tieneReserva) {
           spot.addEventListener("click", () => {
             spots.forEach(s => s.classList.remove("seleccionado"));
             spot.classList.add("seleccionado");
@@ -108,13 +142,18 @@ if (!$conn->connect_error) {
       });
 
       // Botón Agendar
-      document.getElementById("agendar-btn").addEventListener("click", (e) => {
+      const agendarBtn = document.getElementById("agendar-btn");
+      agendarBtn.addEventListener("click", (e) => {
         e.preventDefault();
+        if (tieneReserva) {
+          document.getElementById("error").innerText = "Ya tienes una reserva activa.";
+          return;
+        }
         if (cupoSeleccionado) {
           localStorage.setItem("cupoTemporal", cupoSeleccionado);
           window.location.href = "confirmacion.html";
         } else {
-          document.getElementById("error").innerText = "Por favor selecciona un cupo.";
+          document.getElementById("error").innerText = "Por favor selecciona un cupo disponible.";
         }
       });
 
