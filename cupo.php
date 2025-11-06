@@ -77,7 +77,7 @@ $conn->close();
               $ocupado = in_array($i, $ocupados);
               $clase = $ocupado ? "parking-spot ocupado" : "parking-spot";
               echo '<div class="' . $clase . '" data-num="' . $i . '">' . $i . '</div>';
-              if ($i % 50 == 0) echo '<div class="internal-road"></div>';
+              if ($i % 20 == 0) echo '<div class="internal-road"></div>';
             }
             ?>
           </div>
@@ -97,7 +97,7 @@ $conn->close();
               $ocupado = in_array($i, $ocupados);
               $clase = $ocupado ? "parking-spot ocupado" : "parking-spot";
               echo '<div class="' . $clase . '" data-num="' . $i . '">' . $i . '</div>';
-              if ($i % 50 == 0) echo '<div class="internal-road"></div>';
+              if ($i % 20 == 0) echo '<div class="internal-road"></div>';
             }
             ?>
           </div>
